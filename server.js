@@ -9,5 +9,5 @@ app.get('/api/orders/:ref',(req,res)=>{const o=read().orders.find(x=>x.ref===req
 app.get('/api/admin/data',auth,(req,res)=>res.json(read()));
 app.put('/api/admin/:section',auth,(req,res)=>{const allowed=['products','projects','news','team','settings','orders'];if(!allowed.includes(req.params.section))return res.status(400).json({error:'Invalid section'});const d=read();d[req.params.section]=req.body;write(d);res.json({ok:true})});
 app.get('/admin',(req,res)=>res.sendFile(path.join(ROOT,'public','admin.html')));
-app.get('*',(req,res)=>res.sendFile(path.join(ROOT,'public','index.html')));
+app.use((req,res)=>res.sendFile(path.join(ROOT,'public','index.html')));
 const port=process.env.PORT||3000;app.listen(port,()=>console.log('Dasturxona running on '+port));
