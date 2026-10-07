@@ -10,5 +10,12 @@
 ## Railway
 GitHub repoga push qiling, Railway'da **Deploy from GitHub Repo** ni tanlang. Variables bo'limiga `ADMIN_USER` va `ADMIN_PASSWORD` kiriting. Start command `npm start`.
 
+## Doimiy saqlash (Railway Volume)
+Railway'da fayl tizimi har deploy'da tozalanadi, shuning uchun ma'lumot Volume'da saqlanadi:
+1. Railway'da servisni oching → **Settings → Volumes → Add Volume** (yoki `Ctrl+K` → *Volume*).
+2. **Mount path**: `/data`.
+3. Redeploy qiling. Server `RAILWAY_VOLUME_MOUNT_PATH` ni avtomatik taniydi (kerak bo'lsa `DATA_DIR=/data` Variables'ga yozing).
+4. Birinchi ishga tushishda `data/db.json` dagi boshlang'ich ma'lumot Volume'ga ko'chiriladi; keyingi deploy'larda o'zgarishlar saqlanib qoladi.
+
 ## Muhim
-`data/db.json` faylli baza demo/ilk versiya uchun. Railway persistent production uchun PostgreSQL ulash tavsiya etiladi. Admin panel hozir JSON muharriri shaklida — barcha bo'limlarni server orqali saqlaydi.
+Baza — JSON fayl (kichik/o'rta loyiha uchun yetarli). Yuk oshsa PostgreSQL'ga o'tish tavsiya etiladi. Admin panel hozir JSON muharriri shaklida.
