@@ -1,1 +1,148 @@
-{"products":[],"projects":[{"id":"dasturxona-bot","name":"Dasturxona Bot","description":"Telegram raqamli xizmatlari va talabalar loyihalarini qo'llab-quvvatlovchi ekotizim loyihasi.","url":"https://t.me/dasturxona_bot","status":"active"}],"news":[],"orders":[],"settings":{"storeName":"Dastur Xona","telegram":"https://t.me/dastur_xona_uz","instagram":"https://instagram.com/dastur_xona","teamCount":26,"description":"Talabalar yaratgan mahsulotlar va IT g'oyalar.","shippingFee":null},"team":[]}
+{
+  "products": [
+    {
+      "id": "merch-tshirt-blue",
+      "name": "Dasturxona — ko‘k futbolka",
+      "short": "Milliy naqshli ko‘k futbolka.",
+      "category": "merch",
+      "categoryName": "Merch",
+      "price": 179000,
+      "image": "shirt",
+      "physical": true,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "description": "Dasturxona brendli ko‘k futbolka. Narx sinov uchun belgilangan.",
+      "isSample": true
+    },
+    {
+      "id": "merch-tshirt-white",
+      "name": "Dasturxona — oq futbolka",
+      "short": "Oq rangdagi brend futbolkasi.",
+      "category": "merch",
+      "categoryName": "Merch",
+      "price": 179000,
+      "image": "shirt",
+      "physical": true,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "description": "Dasturxona oq futbolkasi. Narx sinov uchun belgilangan.",
+      "isSample": true
+    },
+    {
+      "id": "merch-hoodie-dark",
+      "name": "Dasturxona — to‘q hudi",
+      "short": "Qulay va zamonaviy hudi.",
+      "category": "merch",
+      "categoryName": "Merch",
+      "price": 319000,
+      "image": "hoodie",
+      "physical": true,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "description": "Dasturxona logotipli hudi. Narx sinov uchun belgilangan.",
+      "isSample": true
+    },
+    {
+      "id": "merch-hoodie-light",
+      "name": "Dasturxona — och hudi",
+      "short": "Yumshoq va qulay kundalik kiyim.",
+      "category": "merch",
+      "categoryName": "Merch",
+      "price": 319000,
+      "image": "hoodie",
+      "physical": true,
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL",
+        "XXL"
+      ],
+      "description": "Dasturxona och rangli hudi. Narx sinov uchun belgilangan.",
+      "isSample": true
+    },
+    {
+      "id": "merch-cap",
+      "name": "Dasturxona — kepka",
+      "short": "Brend uslubidagi kepka.",
+      "category": "merch",
+      "categoryName": "Merch",
+      "price": 99000,
+      "image": "shirt",
+      "physical": true,
+      "description": "Dasturxona kepkasi. Narx sinov uchun belgilangan.",
+      "isSample": true
+    },
+    {
+      "id": "merch-tote",
+      "name": "Dasturxona — sumka",
+      "short": "Kundalik foydalanish uchun.",
+      "category": "merch",
+      "categoryName": "Merch",
+      "price": 89000,
+      "image": "tote",
+      "physical": true,
+      "description": "Dasturxona mato sumkasi. Narx sinov uchun belgilangan.",
+      "isSample": true
+    },
+    {
+      "id": "merch-mug",
+      "name": "Dasturxona — krujka",
+      "short": "Milliy naqshli krujka.",
+      "category": "souvenir",
+      "categoryName": "Suvenir",
+      "price": 69000,
+      "image": "mug",
+      "physical": true,
+      "description": "Dasturxona krujkasi. Narx sinov uchun belgilangan.",
+      "isSample": true
+    },
+    {
+      "id": "merch-mat",
+      "name": "Dasturxona — stol gilamchasi",
+      "short": "Kompyuter va ish stoli uchun.",
+      "category": "souvenir",
+      "categoryName": "Suvenir",
+      "price": 109000,
+      "image": "mug",
+      "physical": true,
+      "description": "Dasturxona stol gilamchasi. Narx sinov uchun belgilangan.",
+      "isSample": true
+    }
+  ],
+  "projects": [
+    {
+      "id": "dasturxona-bot",
+      "name": "Dasturxona Bot",
+      "description": "Telegram raqamli xizmatlari va talabalar loyihalarini qo'llab-quvvatlovchi ekotizim loyihasi.",
+      "url": "https://t.me/dasturxona_bot",
+      "status": "active"
+    }
+  ],
+  "news": [],
+  "orders": [],
+  "settings": {
+    "storeName": "Dastur Xona",
+    "telegram": "https://t.me/dastur_xona_uz",
+    "instagram": "https://instagram.com/dastur_xona",
+    "teamCount": 26,
+    "description": "Talabalar yaratgan mahsulotlar va IT g'oyalar.",
+    "shippingFee": null
+  },
+  "team": []
+}
