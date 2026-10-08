@@ -7,7 +7,7 @@
       "category": "merch",
       "categoryName": "Merch",
       "price": 179000,
-      "image": "shirt",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/86513766-f8dc-4ea1-bd74-08b608ad308c.jpg",
       "physical": true,
       "sizes": [
         "S",
@@ -26,7 +26,7 @@
       "category": "merch",
       "categoryName": "Merch",
       "price": 179000,
-      "image": "shirt",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/49ca0716-4b52-4091-a2e2-bea128122783.jpg",
       "physical": true,
       "sizes": [
         "S",
@@ -45,7 +45,7 @@
       "category": "merch",
       "categoryName": "Merch",
       "price": 319000,
-      "image": "hoodie",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/ff4de1c9-ed05-462d-85b6-2370732e8641.jpg",
       "physical": true,
       "sizes": [
         "S",
@@ -64,7 +64,7 @@
       "category": "merch",
       "categoryName": "Merch",
       "price": 319000,
-      "image": "hoodie",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/f353b4ac-f62f-45fa-ba51-aff51aa6f9f7.jpg",
       "physical": true,
       "sizes": [
         "S",
@@ -83,7 +83,7 @@
       "category": "merch",
       "categoryName": "Merch",
       "price": 99000,
-      "image": "shirt",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/aba38497-c4b3-4671-92db-192ac43f34ad.jpg",
       "physical": true,
       "description": "Dasturxona kepkasi. Narx sinov uchun belgilangan.",
       "isSample": true
@@ -95,7 +95,7 @@
       "category": "merch",
       "categoryName": "Merch",
       "price": 89000,
-      "image": "tote",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/faf685a0-7e0a-4b68-bb7b-d9b1cc7927fc.jpg",
       "physical": true,
       "description": "Dasturxona mato sumkasi. Narx sinov uchun belgilangan.",
       "isSample": true
@@ -107,7 +107,7 @@
       "category": "souvenir",
       "categoryName": "Suvenir",
       "price": 69000,
-      "image": "mug",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/07f9e850-6dba-4d47-bf7a-ef1a020ec2b8.jpg",
       "physical": true,
       "description": "Dasturxona krujkasi. Narx sinov uchun belgilangan.",
       "isSample": true
@@ -119,7 +119,7 @@
       "category": "souvenir",
       "categoryName": "Suvenir",
       "price": 109000,
-      "image": "mug",
+      "image": "https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/1c09e1d5-0275-4d93-b151-9a2341d8040c.jpg",
       "physical": true,
       "description": "Dasturxona stol gilamchasi. Narx sinov uchun belgilangan.",
       "isSample": true
