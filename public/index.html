@@ -111,7 +111,7 @@
   const NEWS_CATEGORIES={jamoa:'Jamoa',mahsulot:'Mahsulot',loyiha:'IT loyiha',tadbir:'Tadbir'};
   const orderStatus={new:'Yangi',confirmed:'Tasdiqlangan',processing:'Tayyorlanmoqda',shipped:'Jo‘natilgan',completed:'Yakunlangan',cancelled:'Bekor qilingan'};
   const paymentStatus={unpaid:'To‘lov kutilmoqda',paid:'To‘langan',refunded:'Qaytarilgan'};
-  function imageSrc(value){const v=String(value||'').replace('asset:','');return /^\/media\/[a-f0-9-]+\.(png|jpg|webp)$/.test(v)?v:ASSETS[v]||MARK;}
+  function imageSrc(value){const v=String(value||'').replace('asset:','');return /^https:\/\/d2ol7oe51mr4n9\.cloudfront\.net\/user_3KBWkKohsTbseSsLFaWt6Iazmtz\/[a-f0-9-]+\.jpg$/.test(v)?v:(/^\/media\/[a-f0-9-]+\.(png|jpg|webp)$/.test(v)?v:ASSETS[v]||MARK);}
   const MONTHS=['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'];
   const articleDate=value=>{const d=new Date(value);return `${d.getDate()}-${MONTHS[d.getMonth()]}, ${d.getFullYear()}`;};
   const stock=p=>Number.isInteger(p?.stock)?p.stock:Infinity;
