@@ -22,12 +22,15 @@ function normalizeProject(p){
     productId:obj.productId||null
   };
 }
-app.get('/api/catalog',(req,res)=>{const d=read();res.json({api:'dasturxona',products:d.products,projects:(Array.isArray(d.projects)?d.projects:[]).map(normalizeProject),team:d.team,settings:d.settings})});
+const UPLOAD_DIR=path.join(DATA_DIR,'uploads');fs.mkdirSync(UPLOAD_DIR,{recursive:true});
+app.use('/uploads',express.static(UPLOAD_DIR,{fallthrough:false}));
+app.post('/api/admin/upload',auth,express.raw({type:['image/jpeg','image/png','image/webp','image/gif'],limit:'5mb'}),(req,res)=>{const types={'image/jpeg':'jpg','image/png':'png','image/webp':'webp','image/gif':'gif'};const ext=types[req.headers['content-type']];if(!ext||!Buffer.isBuffer(req.body)||!req.body.length)return res.status(400).json({error:'JPEG, PNG, WebP yoki GIF rasm yuboring'});const filename=crypto.randomBytes(16).toString('hex')+'.'+ext;fs.writeFileSync(path.join(UPLOAD_DIR,filename),req.body);res.json({url:'/uploads/'+filename})});
+app.get('/api/catalog',(req,res)=>{const d=read();res.json({api:'dasturxona',products:d.products,projects:(Array.isArray(d.projects)?d.projects:[]).map(normalizeProject),team:d.team,settings:d.settings,banners:d.banners||[]})});
 app.get('/api/news',(req,res)=>{const d=read();res.json({items:d.news.filter(x=>x.status!=='draft').slice(0,Number(req.query.limit)||50)})});
 app.post('/api/orders',(req,res)=>{const d=read();const ref='DX-'+Date.now().toString(36).toUpperCase(),token=crypto.randomBytes(18).toString('hex');const order={...req.body,ref,token,status:'new',createdAt:new Date().toISOString()};d.orders.unshift(order);write(d);res.status(201).json({ref,token,status:order.status,createdAt:order.createdAt})});
 app.get('/api/orders/:ref',(req,res)=>{const o=read().orders.find(x=>x.ref===req.params.ref&&x.token===req.header('X-Order-Token'));if(!o)return res.status(404).json({error:'Not found'});res.json({ref:o.ref,status:o.status,createdAt:o.createdAt})});
 app.get('/api/admin/data',auth,(req,res)=>res.json(read()));
-app.put('/api/admin/:section',auth,(req,res)=>{const allowed=['products','projects','news','team','settings','orders'];if(!allowed.includes(req.params.section))return res.status(400).json({error:'Invalid section'});const d=read();d[req.params.section]=req.body;write(d);res.json({ok:true})});
+app.put('/api/admin/:section',auth,(req,res)=>{const allowed=['products','projects','news','team','settings','orders','banners'];if(!allowed.includes(req.params.section))return res.status(400).json({error:'Invalid section'});const d=read();if(req.params.section==='banners'&&!Array.isArray(req.body))return res.status(400).json({error:'Invalid banners'});if(req.params.section==='products'&&!Array.isArray(req.body))return res.status(400).json({error:'Invalid products'});if(req.params.section==='news'&&!Array.isArray(req.body))return res.status(400).json({error:'Invalid news'});d[req.params.section]=req.body;write(d);res.json({ok:true})});
 app.get('/admin',(req,res)=>res.sendFile(path.join(ROOT,'public','admin.html')));
 app.use((req,res)=>res.sendFile(path.join(ROOT,'public','index.html')));
 const port=process.env.PORT||3000;app.listen(port,()=>console.log('Dasturxona running on '+port+', data: '+DB));
