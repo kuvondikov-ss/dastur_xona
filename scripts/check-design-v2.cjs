@@ -13,9 +13,12 @@ const errors=[];
 const bridge=new VirtualConsole();bridge.on('jsdomError',e=>errors.push(e.message));
 let reduce=false;
 const mediaListeners=[];
+let releaseCatalog;
+const catalogReady=new Promise(resolve=>{releaseCatalog=resolve});
 const dom=new JSDOM(fs.readFileSync(path.join(root,'public/index.html'),'utf8'),{
   url:'https://dasturxona-design.test/',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:bridge,
   beforeParse(w){
+    w.addEventListener('error',event=>errors.push(event.error?.message||event.message));
     let scroll=0;
     Object.defineProperty(w,'scrollY',{get:()=>scroll});
     Object.defineProperty(w,'innerWidth',{value:1440,writable:true});
@@ -26,7 +29,7 @@ const dom=new JSDOM(fs.readFileSync(path.join(root,'public/index.html'),'utf8'),
     w.HTMLCanvasElement.prototype.getContext=()=>null;
     w.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open')};
     w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','')};
-    w.fetch=async url=>({ok:true,status:200,json:async()=>String(url).startsWith('/api/catalog')?catalog:String(url)==='/api/orders'?{ref:'DX-LOCAL-TEST',token:'local-test-only',status:'new',createdAt:'2026-10-11T00:00:00.000Z'}:String(url).startsWith('/api/orders/')?{ref:'DX-LOCAL-TEST',status:'confirmed',createdAt:'2026-10-11T00:00:00.000Z'}:{items:db.news.filter(n=>n.status!=='draft'),total:db.news.length,limit:9}});
+    w.fetch=async url=>({ok:true,status:200,json:async()=>String(url).startsWith('/api/catalog')?catalogReady.then(()=>catalog):String(url)==='/api/orders'?{ref:'DX-LOCAL-TEST',token:'local-test-only',status:'new',createdAt:'2026-10-11T00:00:00.000Z'}:String(url).startsWith('/api/orders/')?{ref:'DX-LOCAL-TEST',status:'confirmed',createdAt:'2026-10-11T00:00:00.000Z'}:{items:db.news.filter(n=>n.status!=='draft'),total:db.news.length,limit:9}});
     // jsdom has no layout engine. These geometry fixtures exercise scroll logic, not visual layout.
     w.HTMLElement.prototype.getBoundingClientRect=function(){
       const points={hero:[0,900],world:[980,800],merch:[1780,1400],digital:[3180,1050],purpose:[4230,1800],makers:[6030,1200],questions:[7230,800],finale:[8030,850]};
@@ -44,17 +47,21 @@ const nativeTimeout=w.setTimeout.bind(w),nativeClear=w.clearTimeout.bind(w);
 w.setTimeout=(fn,delay,...args)=>{if(delay===8000){const id=nextId++;auto.set(id,fn);return id}return nativeTimeout(fn,delay,...args)};
 w.clearTimeout=id=>{if(!auto.delete(id))nativeClear(id)};
 const tick=()=>new Promise(r=>setTimeout(r,80));
+async function waitForReady(test){for(let i=0;i<20;i++){if(test())return;await tick()}assert(test(),'the delayed home controller initialized')}
 async function goto(hash){w.location.hash=hash;await tick()}
 async function scrollTo(y){w.scrollTo(0,y);w.dispatchEvent(new w.Event('scroll'));await tick()}
 
 (async()=>{
   await tick();
+  assert.equal(d.querySelector('#dx-immersive-home'),null,'the catalog has not arrived when deferred controllers start');
   w.eval(fs.readFileSync(path.join(root,'public/assets/design-v2.js'),'utf8'));
   w.eval(fs.readFileSync(path.join(root,'public/assets/scene-v2.bundle.js'),'utf8'));
-  await tick();
+  releaseCatalog();
+  await waitForReady(()=>d.querySelector('[data-dx-motion]')?.getAttribute('aria-label')==='Harakatni to‘xtatish');
   assert.equal(d.querySelectorAll('.dx-cinema-slide').length,3+catalog.banners.length);
   assert.equal(d.querySelectorAll('.dx-cinema-slide.is-active').length,1);
   assert.equal(d.querySelector('.site-header').getAttribute('aria-hidden'),'true');
+  assert.equal(d.querySelector('[data-dx-motion]').getAttribute('aria-label'),'Harakatni to‘xtatish','async catalog rendering initializes the home controller');
   assert.equal(d.querySelectorAll('.dx-creative-card').length,4);
   assert.equal(d.querySelectorAll('[data-value-step]').length,4);
   assert.equal(d.querySelectorAll('.product-card').length,4);
@@ -87,6 +94,7 @@ async function scrollTo(y){w.scrollTo(0,y);w.dispatchEvent(new w.Event('scroll')
   assert.equal(auto.size,0);assert(d.body.classList.contains('dx-motion-paused'));assert(w.dxSceneState.paused);
   assert.equal(d.querySelector('#dx-webgl').style.getPropertyValue('--dx-scene-opacity'),'0');
   await goto('#/dokon');assert(!d.documentElement.classList.contains('dx-enter-home'));
+  assert.equal(w.dxSceneState.home,false,'route changes republish the scene state');
   assert.equal(auto.size,0,'route changes dispose the old carousel');
   assert.equal(d.querySelectorAll('.product-card').length,8);
   assert(d.querySelector('.dx-page-scene img'));
@@ -114,6 +122,7 @@ async function scrollTo(y){w.scrollTo(0,y);w.dispatchEvent(new w.Event('scroll')
   await goto('#/biz-haqimizda');assert(d.querySelector('.dx-about-atelier img'));assert.equal(d.querySelectorAll('.value-card').length,4);
   await goto('#/yangiliklar');assert(d.querySelector('h1'));
   await goto('#/');assert(d.body.classList.contains('dx-motion-paused'));
+  assert.equal(w.dxSceneState.home,true);
   d.querySelector('[data-dx-motion]').click();await tick();assert.equal(auto.size,1);
   w.innerWidth=390;w.innerHeight=844;w.dispatchEvent(new w.Event('resize'));await tick();assert(w.dxSceneState.mobile);
   reduce=true;mediaListeners.forEach(fn=>fn());await tick();
@@ -123,7 +132,7 @@ async function scrollTo(y){w.scrollTo(0,y);w.dispatchEvent(new w.Event('scroll')
   assert(style.sheet.cssRules.length>100);
   assert.match(css,/height:100svh/);
   assert.deepEqual(errors,[]);
-  console.log('PASS: full-screen slider autoplay/manual wrap, inactive slide accessibility, hidden/revealed header, scroll exploration/chapters, motion pause/reduced motion/mobile state, route timer cleanup, catalog/search/cart, bot poster/link, about/news and stylesheet parsing.');
+  console.log('PASS: delayed catalog initialization, full-screen slider autoplay/manual wrap, inactive slide accessibility, hidden/revealed header, scroll exploration/chapters, motion pause/reduced motion/mobile state, route timer cleanup, catalog/search/cart, checkout receipt/status refresh, bot poster/link, about/news and stylesheet parsing.');
   console.log('Visual viewport/GPU rendering and live checkout were not exercised by jsdom.');
   dom.window.close();
 })().catch(error=>{console.error(error);dom.window.close();process.exitCode=1});

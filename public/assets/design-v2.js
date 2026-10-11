@@ -230,7 +230,6 @@
       events.abort();clearTimeout(autoTimer);
       if (frame) cancelAnimationFrame(frame);
       if (observer) observer.disconnect();
-      lastScene = null;
     };
   }
   new MutationObserver(() => {
