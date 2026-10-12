@@ -135,6 +135,8 @@
         if(parentSlide&&!parentSlide.classList.contains('is-active'))continue;
         const r=dock.getBoundingClientRect();
         if(r.width<8||r.height<8)continue;
+        // Clip static placeholders and the stage too, including beneath the fixed header.
+        dock.style.clipPath=`inset(${Math.max(0,topGuard-r.top).toFixed(2)}px 0 ${Math.max(0,r.bottom-vh).toFixed(2)}px 0)`;
         const visiblePixels=Math.max(0,Math.min(vh,r.bottom)-Math.max(topGuard,r.top));
         const collision=blocked(r);dock.classList.toggle('dx-dock-blocked',collision);
         const center=(r.top+r.bottom)/2;

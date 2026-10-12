@@ -242,6 +242,7 @@ body{overflow-x:clip}
 .dx-brand-static,.dx-journey-layer,.dx-webgl{position:absolute;inset:0;width:100%;height:100%;left:0;top:0;transform:none;opacity:1;pointer-events:none}
 .dx-journey-layer{display:none;z-index:2;overflow:hidden;transition:none}
 .dx-brand-dock>.dx-journey-layer{display:block}
+.dx-brand-dock>.dx-journey-layer[hidden]{display:none!important}
 .dx-brand-dock.dx-dock-active>.dx-brand-static{visibility:hidden}
 .dx-brand-static,.dx-webgl-fallback{padding:8%;display:grid;place-items:center;animation:none;transform:none;inset:0}
 .dx-webgl-fallback{position:absolute;width:100%;height:100%}

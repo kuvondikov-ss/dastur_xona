@@ -104,6 +104,11 @@ async function scrollTo(y){w.scrollTo(0,y);w.dispatchEvent(new w.Event('scroll')
       assert(!layer.hidden);assert(!dock.classList.contains('dx-dock-blocked'));
       assert.equal(persistentHost.dataset.collision,'false');
       assert.equal(persistentHost.style.getPropertyValue('--dx-logo-color'),dock.dataset.brandTone==='light'?'#153254':'#fbf7ef');
+      const clip=dock.style.clipPath.match(/inset\(([\d.]+)px 0 ([\d.]+)px 0\)/);
+      assert(clip,'the entire reserved cell, including its static placeholder, is clipped');
+      const rect=dock.getBoundingClientRect(),guard=d.querySelector('.site-header').getAttribute('aria-hidden')==='true'?0:98;
+      assert(rect.top+Number(clip[1])>=guard-.01,'graphics cannot enter the fixed header');
+      assert(rect.bottom-Number(clip[2])<=w.innerHeight+.01,'graphics are clipped to the bottom of the viewport');
     }
     assert.equal(d.querySelectorAll('#dx-webgl').length,1,'route and section transfers preserve one renderer');
   }
@@ -217,6 +222,7 @@ async function scrollTo(y){w.scrollTo(0,y);w.dispatchEvent(new w.Event('scroll')
   assert.match(css,/contain:layout paint/,'CSS confines every effect to its reserved cell');
   assert.match(css,/transition:fill 1\.25s ease/,'the SVG fallback changes its palette smoothly');
   assert.match(css,/dx-dock-blocked>\*/,'the collision guard hides static graphics too');
+  assert.match(css,/dx-journey-layer\[hidden\]\{display:none!important\}/,'the master host respects the hidden attribute inside a cell');
   assert.deepEqual(errors,[]);
   console.log('PASS: delayed catalog, slider/header/routes, persistent renderer in every reserved section at 5 screen widths, palette/scroll split, text-collision fail-closed guard, late layout, lifecycle/motion controls, mocked cart/checkout and CSS parsing.');
   console.log('Visual viewport/GPU rendering and live checkout were not exercised by jsdom.');
