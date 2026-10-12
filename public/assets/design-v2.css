@@ -19,7 +19,7 @@ body{overflow-x:clip}
 .dx-thread-live{stroke:#bd550f45;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--dx-progress,0));filter:drop-shadow(0 0 8px #fa7c241a)}
 .dx-journey-layer{position:fixed;inset:0;pointer-events:none;z-index:3;opacity:0;transition:opacity .5s}
 .dx-enter-home .dx-journey-layer{opacity:1}
-.dx-webgl{position:absolute;left:var(--dx-scene-x,77%);top:var(--dx-scene-y,45%);width:var(--dx-scene-size,480px);height:var(--dx-scene-size,480px);transform:translate(-50%,-50%);opacity:var(--dx-scene-opacity,1);transition:opacity .65s}
+.dx-webgl{position:absolute;left:var(--dx-scene-x,77%);top:var(--dx-scene-y,45%);width:var(--dx-scene-size,480px);height:var(--dx-scene-size,480px);transform:translate(-50%,-50%);opacity:var(--dx-scene-opacity,1)}
 .dx-webgl canvas{display:block;width:100%;height:100%}
 .dx-webgl-fallback{position:absolute;inset:13%;display:grid;place-items:center;transform:perspective(1000px) rotateY(-17deg) rotateZ(-8deg);animation:dx-emblem-float 9s ease-in-out infinite}
 .dx-webgl-fallback img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(1px 1px 0 #f4e6ce) drop-shadow(2px 2px 0 #eedaba) drop-shadow(3px 3px 0 #dcc6a6) drop-shadow(4px 4px 0 #968778) drop-shadow(12px 18px 18px #0008);background:radial-gradient(ellipse,#fbf7efc9,transparent 67%);padding:14px}
@@ -200,6 +200,8 @@ body{overflow-x:clip}
 .dx-motion-ready [data-reveal]{transition:transform .9s cubic-bezier(.22,1,.36,1),opacity .9s;transform:translateY(0);opacity:1}
 .dx-motion-ready [data-reveal].dx-wait{transform:translateY(35px);opacity:.05}
 .dx-motion-paused .dx-mini-sculpture,.dx-motion-paused .dx-marquee>div,.dx-motion-paused .dx-mouse i,.dx-motion-paused .dx-value-orbit::before,.dx-motion-paused .dx-value-orbit::after,.dx-motion-paused .dx-webgl-fallback{animation-play-state:paused!important}
+.dx-motion-paused .dx-immersive-home *,.dx-motion-paused .dx-immersive-home *::before,.dx-motion-paused .dx-immersive-home *::after,.dx-motion-paused .dx-journey-layer *,.dx-document-hidden .dx-immersive-home *,.dx-document-hidden .dx-immersive-home *::before,.dx-document-hidden .dx-immersive-home *::after,.dx-document-hidden .dx-journey-layer *{animation-play-state:paused!important}
+.dx-creative-grid,.dx-products-curated,.dx-detail-strip,.dx-purpose-steps,.dx-maker-copy,.dx-questions .faq-layout{position:relative;z-index:6}
 .dx-motion-paused .dx-cinema-image{transition:none!important;transform:none!important}
 .dx-motion-paused .dx-cinema-tabs button.is-active>i::after{animation:none;transform:scaleX(1)}
 .dx-motion-paused [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
