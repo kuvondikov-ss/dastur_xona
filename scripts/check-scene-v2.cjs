@@ -63,7 +63,7 @@ const root = path.resolve(__dirname, '..');
     w.dispatchEvent(new w.Event('pageshow'));
     assert.equal(typeof renderer.loop, 'function', 'back/forward restoration restarts the stopped animation loop');
     step();
-    assert.equal(renderer.rig.children.length, 2, 'the brand keeps its identity on every campaign slide');
+    assert.equal(renderer.rig.children.length, 1, 'the scene renders the brand without a surrounding ring');
     assert.equal(renderer.rig.children[0].userData.parts, 13);
     const model=renderer.rig.children[0];
     const meshes=[];model.traverse(object=>{if(object.isMesh)meshes.push(object)});

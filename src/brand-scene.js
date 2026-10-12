@@ -31,19 +31,6 @@ import { createBrandModel, updateBrandModel } from './brand-model.mjs';
   const key = new THREE.DirectionalLight('#fff4e0', 4.2);key.position.set(-4, 5, 7);scene.add(key);
   const rim = new THREE.DirectionalLight('#ff963f', 3);rim.position.set(4, -2, -3);scene.add(rim);
   const fill = new THREE.DirectionalLight('#9ebedb', 2);fill.position.set(5, 1, 6);scene.add(fill);
-  const orbit = new THREE.Group();
-  const ringMaterial = new THREE.MeshStandardMaterial({ color: '#d18d50', metalness: .45, roughness: .4, transparent: true, opacity: .36 });
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(3.55, .016, 6, 100), ringMaterial);
-  ring.rotation.x = .75;ring.rotation.y = -.4;
-  orbit.add(ring);
-  const dotMaterial = new THREE.MeshStandardMaterial({ color: '#ffa253', emissive: '#71300c', emissiveIntensity: .25, metalness: .4, roughness: .3 });
-  for (let i = 0; i < 3; i++) {
-    const dot = new THREE.Mesh(new THREE.SphereGeometry(.065 + i * .012, 12, 8), dotMaterial);
-    const angle = i * Math.PI * 2 / 3;
-    dot.position.set(Math.cos(angle) * 3.55, Math.sin(angle) * 2.55, Math.sin(angle) * 1.6);
-    orbit.add(dot);
-  }
-  rig.add(orbit);
   let state = window.dxSceneState || { home: false, paused: true, progress: 0, mobile: innerWidth <= 680 };
   let active = false;
   let lost = false;
@@ -72,7 +59,6 @@ import { createBrandModel, updateBrandModel } from './brand-model.mjs';
     rig.rotation.y = -.24 + smoothX + Math.sin(progress * Math.PI * 2) * .28 + Math.sin(elapsed * .3) * .16;
     rig.rotation.z = -.05 + Math.sin(elapsed * .22) * .07;
     rig.position.y = Math.sin(elapsed * .7) * .12;
-    orbit.rotation.z = elapsed * .12 + progress * 1.5;
     updateBrandModel(logo, {mix:paletteMix,split:state.reduced?0:(state.split||0),phase:progress*Math.PI*6+elapsed*.55});
     renderer.render(scene, camera);
     host.classList.add('is-rendered');
