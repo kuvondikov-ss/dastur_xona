@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import logoSvg from '../public/assets/brand-mark.svg';
-import { createBrandModel } from './brand-model.mjs';
+import { createBrandModel, updateBrandModel } from './brand-model.mjs';
 
 (() => {
   const host = document.getElementById('dx-webgl');
@@ -49,6 +49,8 @@ import { createBrandModel } from './brand-model.mjs';
   let lost = false;
   let pageSuspended = false;
   let rendered = false;
+  let paletteMix = 1;
+  let poseProgress = 0;
   let elapsed = 0;
   let lastTime = 0;
   let lastRender = 0;
@@ -63,13 +65,15 @@ import { createBrandModel } from './brand-model.mjs';
     renderer.setSize(mobile ? 320 : 512, mobile ? 320 : 512, false);
   }
   function pose() {
-    const progress = Math.max(0, Math.min(1, state.progress || 0));
+    if(!state.paused&&!state.reduced)poseProgress=Math.max(0,Math.min(1,state.progress||0));
+    const progress = poseProgress;
     // Keep the thin emblem facing the reader instead of disappearing edge-on.
     rig.rotation.x = .13 + smoothY + Math.sin(elapsed * .24) * .09;
     rig.rotation.y = -.24 + smoothX + Math.sin(progress * Math.PI * 2) * .28 + Math.sin(elapsed * .3) * .16;
     rig.rotation.z = -.05 + Math.sin(elapsed * .22) * .07;
     rig.position.y = Math.sin(elapsed * .7) * .12;
     orbit.rotation.z = elapsed * .12 + progress * 1.5;
+    updateBrandModel(logo, {mix:paletteMix,split:state.reduced?0:(state.split||0),phase:progress*Math.PI*6+elapsed*.55});
     renderer.render(scene, camera);
     host.classList.add('is-rendered');
     rendered = true;
@@ -79,6 +83,9 @@ import { createBrandModel } from './brand-model.mjs';
     if (time - lastRender < interval) return;
     const dt = lastTime ? Math.min(.1, Math.max(0, (time - lastTime) / 1000)) : 0;
     elapsed += dt;
+    const paletteTarget = state.tone === 'light' ? 0 : 1;
+    paletteMix += (paletteTarget-paletteMix)*(1-Math.exp(-dt/ .35));
+    if(Math.abs(paletteMix-paletteTarget)<.001)paletteMix=paletteTarget;
     lastTime = time;lastRender = time;
     const weight = 1 - Math.exp(-dt * 8);
     smoothX += (pointerX - smoothX) * weight;smoothY += (pointerY - smoothY) * weight;
@@ -93,6 +100,7 @@ import { createBrandModel } from './brand-model.mjs';
     const visible = state.home && state.visible !== false && !document.hidden && !pageSuspended && !lost;
     if (!visible) { stop();return; }
     const moving = !state.paused && !state.reduced;
+    if(!moving)paletteMix=state.tone==='light'?0:1;
     if (!rendered || !moving) pose();
     if (moving && !active) {
       active = true;lastTime = 0;lastRender = 0;renderer.setAnimationLoop(tick);

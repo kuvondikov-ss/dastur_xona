@@ -4,6 +4,8 @@
   const main = document.getElementById('main');
   const header = document.querySelector('.site-header');
   if (!main || !header) return;
+  const journeyLayer = document.getElementById('dx-journey-layer');
+  const sceneHost = document.getElementById('dx-webgl');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const fine = matchMedia('(hover: hover) and (pointer: fine)');
   let paused = false;
@@ -12,18 +14,6 @@
   let initQueued = false;
   const clamp = (n, a = 0, b = 1) => Math.max(a, Math.min(b, n));
   const lerp = (a, b, t) => a + (b - a) * t;
-  const positions = {
-    hero: [77, 43, 480, 1], world: [89, 67, 195, .82],
-    merch: [91, 25, 155, .6], digital: [8, 76, 145, .62],
-    purpose: [27, 67, 295, .92], makers: [91, 26, 155, .65],
-    questions: [90, 44, 145, .55], finale: [81, 43, 360, .95]
-  };
-  const mobilePositions = {
-    hero: [72, 68, 230, .96], world: [86, 78, 82, .52],
-    merch: [87, 28, 78, .45], digital: [86, 78, 78, .45],
-    purpose: [82, 75, 90, .5], makers: [86, 28, 78, .45],
-    questions: [86, 72, 78, .42], finale: [80, 43, 115, .7]
-  };
 
   function init() {
     dispose();
@@ -36,6 +26,9 @@
     const tabs = hero ? [...hero.querySelectorAll('[data-dx-slide]')] : [];
     const parallax = [...main.querySelectorAll('[data-dx-parallax]')];
     const values = [...main.querySelectorAll('[data-value-step]')];
+    const docks = [...main.querySelectorAll('[data-brand-dock]'), ...document.querySelectorAll('.site-footer [data-brand-dock]')];
+    const protectedCopy = [...document.querySelectorAll('#main h1,#main h2,#main h3,#main h4,#main p,#main a,#main button,#main summary,#main label,#main small,#main span,#main b,#main strong,.site-header,.site-footer p,.site-footer a,.site-footer h2,.site-footer small')].filter(el => !el.closest('[data-brand-dock]'));
+    const sticky = main.querySelector('.dx-purpose-sticky');
     const motion = main.querySelector('[data-dx-motion]');
     let observer;
     let resizeObserver;
@@ -45,7 +38,10 @@
     let heroVisible = Boolean(hero);
     let focusHeld = false;
     let gesture = null;
-    let pose = null;
+    let currentDock = null;
+    let opacity = 0;
+    let split = 1;
+    let pendingDock = null;
     let lastFrame = 0;
     let pageSuspended = false;
     let alive = true;
@@ -109,104 +105,104 @@
       document.dispatchEvent(new CustomEvent('dx:scene-state', { detail: state }));
     }
     function update(time = performance.now()) {
-      frame = 0;
-      syncHeader();
-      const host = document.getElementById('dx-webgl');
-      const layer = document.getElementById('dx-journey-layer');
+      frame = 0;syncHeader();
       if (!home) {
-        if (host) host.style.setProperty('--dx-scene-opacity', '0');
-        if (layer) layer.style.removeProperty('clip-path');
-        publish({ home: false, visible: false, paused: true, reduced: reduced.matches });
-        return;
+        if (journeyLayer) journeyLayer.hidden = true;
+        publish({home:false,visible:false,paused:true,reduced:reduced.matches});return;
       }
-      const y = window.scrollY;
-      const vh = innerHeight || 800;
-      const vw = document.documentElement.clientWidth || innerWidth || 1280;
-      const rect = home.getBoundingClientRect();
-      const height = Math.max(home.scrollHeight, rect.height, vh);
-      const progress = clamp(-rect.top / Math.max(1, height - vh));
-      home.style.setProperty('--dx-progress', String(progress));
-      const visibleNow = hero.getBoundingClientRect().bottom > vh * .4;
-      if (visibleNow !== heroVisible) { heroVisible = visibleNow;scheduleAuto(); }
-
-      const marks = chapters.map(el => ({ el, rect: el.getBoundingClientRect() }));
-      let active = 0;
-      marks.forEach((m, i) => { if (m.rect.top <= vh * .48) active = i; });
-      const chapter = marks[active] ? marks[active].el : hero;
-      const name = chapter.dataset.scene || 'hero';
-      const status = home.querySelector('.dx-journey-status');
-      if (status) {
-        status.querySelector('span').textContent = String(active + 1).padStart(2, '0');
-        status.querySelector('b').textContent = chapter.dataset.chapter;
+      const vh=innerHeight||800,vw=document.documentElement.clientWidth||innerWidth||1280;
+      const homeRect=home.getBoundingClientRect();
+      const progress=clamp(-homeRect.top/Math.max(1,Math.max(home.scrollHeight,homeRect.height,vh)-vh));
+      home.style.setProperty('--dx-progress',String(progress));
+      if(sticky)sticky.classList.toggle('dx-sticky-too-tall',sticky.getBoundingClientRect().height>vh-150);
+      const visibleNow=hero.getBoundingClientRect().bottom>vh*.4;
+      if(visibleNow!==heroVisible){heroVisible=visibleNow;scheduleAuto();}
+      const topGuard=header.getAttribute('aria-hidden')==='true'?0:header.getBoundingClientRect().height+12;
+      const copyRects=protectedCopy.flatMap(el=>{
+        if(el.closest('[aria-hidden="true"],[inert]'))return [];
+        const rects=[...el.getClientRects()].filter(box=>box.width>0&&box.height>0&&box.bottom>0&&box.top<vh);
+        if(!rects.length)return [];
+        const style=getComputedStyle(el);if(style.display==='none'||style.visibility==='hidden')return [];
+        return rects;
+      });
+      function blocked(r){
+        const safe={left:r.left+6,right:r.right-6,top:Math.max(topGuard,r.top+6),bottom:Math.min(vh,r.bottom-6)};
+        return safe.bottom>safe.top&&copyRects.some(box=>box.left<safe.right+10&&box.right>safe.left-10&&box.top<safe.bottom+10&&box.bottom>safe.top-10);
       }
-      // Both viewport sizes follow the same continuous path. Chapter labels never snap the pose.
-      let previous = marks[0], next = marks[0];
-      for (let i = 1; i < marks.length; i++) {
-        const point = marks[i].rect.top + y - vh * .48;
-        if (y < point) { next = marks[i];break; }
-        previous = marks[i];next = marks[i];
+      const candidates=[];
+      for(const dock of docks){
+        const parentSlide=dock.closest('[data-slide]');
+        if(parentSlide&&!parentSlide.classList.contains('is-active'))continue;
+        const r=dock.getBoundingClientRect();
+        if(r.width<8||r.height<8)continue;
+        const visiblePixels=Math.max(0,Math.min(vh,r.bottom)-Math.max(topGuard,r.top));
+        const collision=blocked(r);dock.classList.toggle('dx-dock-blocked',collision);
+        const center=(r.top+r.bottom)/2;
+        const localSplit=clamp((Math.abs(center-vh*.52)/Math.max(1,vh*.48)-.15)/.85);
+        dock.style.setProperty('--dx-split',animated()?String(localSplit):'0');
+        dock.style.setProperty('--dx-circuit-x',animated()?(Math.sin(progress*Math.PI*6)*5).toFixed(2)+'px':'0px');
+        dock.style.setProperty('--dx-circuit-y',animated()?(Math.sin(progress*Math.PI*4)*7).toFixed(2)+'px':'0px');
+        if(visiblePixels>16&&!collision)candidates.push({dock,r,localSplit,score:visiblePixels/r.height*2-Math.abs(center-vh*.52)/vh});
       }
-      const start = Math.max(0, previous.rect.top + y - vh * .48);
-      const end = Math.max(start + 1, next.rect.top + y - vh * .48);
-      const t = clamp((y - start) / (end - start));
-      const ease = t * t * (3 - 2 * t);
-      const track = vw <= 680 ? mobilePositions : positions;
-      function at(mark) {
-        const scene = mark.el.dataset.scene;
-        const p = [...(track[scene] || track.hero)];
-        if (scene === 'hero' && slide !== 0) {
-          // Keep the brand visible and avoid covering the products in the campaign images.
-          return vw <= 680 ? [86, 67, 95, .58] : slide === 1 ? [91, 74, 140, .6] : [90, 27, 145, .7];
+      candidates.sort((a,b)=>b.score-a.score);
+      const best=candidates[0]||null;
+      const dt=Math.min(64,Math.max(1,lastFrame?time-lastFrame:16));lastFrame=time;
+      const weight=1-Math.exp(-dt/65);
+      const instant=!animated();
+      if(best&&best.dock!==currentDock)pendingDock=best.dock;
+      else pendingDock=null;
+      if(pendingDock){
+        opacity=instant?0:lerp(opacity,0,weight);
+        split=instant?1:lerp(split,1,weight);
+        const oldRect=currentDock?.getBoundingClientRect();
+        const oldVisible=oldRect&&oldRect.bottom>topGuard&&oldRect.top<vh;
+        if(!currentDock||!oldVisible||opacity<.035||instant){
+          currentDock?.classList.remove('dx-dock-active');
+          currentDock=pendingDock;pendingDock=null;
+          currentDock.classList.add('dx-dock-active');
+          if(journeyLayer)currentDock.append(journeyLayer);
+          opacity=instant?1:0;split=instant?0:1;
         }
-        if (vw > 680 && vw < 1100 && scene !== 'hero') { p[2] = Math.min(p[2], 130);p[3] = Math.min(p[3], .65); }
-        return p;
       }
-      const a = at(previous), b = at(next);
-      const position = a.map((v, i) => lerp(v, b[i], ease));
-      if (!animated() && name !== 'hero') position[3] = 0;
-      const size = Math.min(position[2], vw * .6, Math.max(40, vh - 140));
-      const half = size / 2 + 12;
-      const top = Math.max(half, Math.min(100 + size / 2, vh / 2));
-      const bottom = Math.max(top, Math.min(vh - half - 42, rect.bottom - half));
-      const target = [
-        clamp(position[0] / 100 * vw, half, Math.max(half, vw - half)),
-        clamp(position[1] / 100 * vh, top, bottom),size,position[3]
-      ];
-      const dt = Math.min(64, Math.max(1, lastFrame ? time - lastFrame : 16));
-      lastFrame = time;
-      const weight = 1 - Math.exp(-dt / 75);
-      pose = !pose || !animated() ? target : pose.map((v, i) => lerp(v, target[i], weight));
-      // Keep the eased pose inside a viewport that can shrink during mobile scrolling.
-      pose[2] = Math.min(pose[2], vw * .6, Math.max(40, vh - 140));
-      const currentHalf = pose[2] / 2 + 12;
-      pose[0] = clamp(pose[0], currentHalf, Math.max(currentHalf, vw - currentHalf));
-      const currentTop = Math.max(currentHalf, Math.min(100 + pose[2] / 2, vh / 2));
-      pose[1] = clamp(pose[1], currentTop, Math.max(currentTop, Math.min(vh - currentHalf - 42, rect.bottom - currentHalf)));
-      const settling = pose.some((v, i) => Math.abs(v - target[i]) > (i === 3 ? .005 : .2));
-      if (!settling) pose = target;
-      if (host) {
-        host.style.setProperty('--dx-scene-x', pose[0].toFixed(2) + 'px');
-        host.style.setProperty('--dx-scene-y', pose[1].toFixed(2) + 'px');
-        host.style.setProperty('--dx-scene-size', pose[2].toFixed(2) + 'px');
-        host.style.setProperty('--dx-scene-opacity', String(pose[3]));
+      const current=candidates.find(c=>c.dock===currentDock);
+      let collision=Boolean(currentDock?.classList.contains('dx-dock-blocked'));
+      let visible=Boolean(current);
+      if(current){
+        const r=current.r;
+        const safe={left:r.left+6,right:r.right-6,top:Math.max(topGuard,r.top+6),bottom:Math.min(vh,r.bottom-6)};
+        // Fail closed: even custom font sizes or newly expanded copy cannot be painted over.
+        collision=blocked(r);
+        visible=visible&&!collision&&safe.bottom>safe.top;
+        if(journeyLayer)journeyLayer.style.clipPath=`inset(${Math.max(0,topGuard-r.top).toFixed(2)}px 0 ${Math.max(0,r.bottom-vh).toFixed(2)}px 0)`;
+        if(!pendingDock){
+          opacity=instant?(visible?1:0):lerp(opacity,visible?1:0,weight);
+          split=instant?0:lerp(split,current.localSplit,weight);
+        }
       }
-      // Decorative geometry must not bleed into the header or the footer.
-      if (layer) layer.style.clipPath = `inset(${Math.max(0, rect.top).toFixed(2)}px 0 ${Math.max(0, vh - rect.bottom).toFixed(2)}px 0)`;
-      const visible = rect.bottom > 100 && rect.top < vh && pose[3] > .01;
-      const state = { home: true, visible, paused: !animated() || pageSuspended, reduced: reduced.matches, scene: name, shape: 'logo', progress, slide, mobile: vw <= 680 };
-      publish(state);
-      if (animated()) {
-        parallax.forEach(el => {
-          const box = el.parentElement.getBoundingClientRect();
-          if (box.bottom < -100 || box.top > vh + 100) return;
-          const shift = clamp((vh * .5 - (box.top + box.height * .5)) / Math.max(vh, box.height), -.5, .5) * (vw <= 680 ? 26 : 65);
-          el.style.setProperty('--dx-parallax', shift.toFixed(2) + 'px');
-        });
-      } else parallax.forEach(el => el.style.setProperty('--dx-parallax', '0px'));
-      let currentValue = -1;
-      values.forEach((el, i) => { if (el.getBoundingClientRect().top < vh * .6) currentValue = i; });
-      values.forEach((el, i) => el.classList.toggle('is-current', i === Math.max(0, currentValue)));
-      if (settling && !document.hidden && !pageSuspended) requestUpdate();
+      if(collision)opacity=0;
+      if(journeyLayer){journeyLayer.hidden=!visible;journeyLayer.style.opacity=String(opacity);}
+      if(sceneHost){
+        sceneHost.dataset.dock=currentDock?.dataset.brandId||'';
+        sceneHost.dataset.collision=String(collision);
+        sceneHost.style.setProperty('--dx-split',String(split));
+        sceneHost.style.setProperty('--dx-logo-color',currentDock?.dataset.brandTone==='light'?'#153254':'#fbf7ef');
+        sceneHost.style.setProperty('--dx-logo-accent',currentDock?.dataset.brandTone==='light'?'#bd550f':'#fa7c24');
+        sceneHost.style.setProperty('--dx-logo-edge',currentDock?.dataset.brandTone==='light'?'#0c2035':'#c8b79b');
+      }
+      const chapter=currentDock?.closest('[data-scene]');
+      const name=chapter?.dataset.scene||'hero';
+      const status=home.querySelector('.dx-journey-status');
+      if(status&&chapter){status.querySelector('b').textContent=chapter.dataset.chapter||'DasturXona';}
+      publish({home:true,visible:visible&&opacity>.02,paused:!animated()||pageSuspended,reduced:reduced.matches,scene:name,shape:'logo',progress,slide,mobile:vw<=680,tone:currentDock?.dataset.brandTone||'dark',split});
+      if(animated())parallax.forEach(el=>{
+        const box=el.parentElement.getBoundingClientRect();if(box.bottom< -100||box.top>vh+100)return;
+        const shift=clamp((vh*.5-(box.top+box.height*.5))/Math.max(vh,box.height),-.5,.5)*(vw<=680?20:45);
+        el.style.setProperty('--dx-parallax',shift.toFixed(2)+'px');
+      });
+      else parallax.forEach(el=>el.style.setProperty('--dx-parallax','0px'));
+      let currentValue=-1;values.forEach((el,i)=>{if(el.getBoundingClientRect().top<vh*.6)currentValue=i;});
+      values.forEach((el,i)=>el.classList.toggle('is-current',i===Math.max(0,currentValue)));
+      if(animated()&&!document.hidden&&!pageSuspended&&(pendingDock||(visible&&Math.abs(opacity-1)>.005)||(current&&Math.abs(split-current.localSplit)>.005)))requestUpdate();
     }
     function requestUpdate() { if (!frame) frame = requestAnimationFrame(update); }
     function onScroll(event) {
@@ -284,6 +280,8 @@
     update();
     dispose = () => {
       alive = false;
+      currentDock?.classList.remove('dx-dock-active');
+      if(journeyLayer){journeyLayer.hidden=true;document.body.insertBefore(journeyLayer,main);}
       events.abort();clearTimeout(autoTimer);
       if (frame) cancelAnimationFrame(frame);
       if (observer) observer.disconnect();
