@@ -1,21 +1,50 @@
-# Dasturxona Platform
+# DasturXona
 
-## Ishga tushirish
-1. Node.js 20+ o'rnating.
-2. `.env.example` nusxasini `.env` qiling va admin parolini almashtiring.
-3. `npm install`
-4. `npm start`
-5. Sayt: `http://localhost:3000`, admin: `http://localhost:3000/admin`
+Talabalar yaratgan merch, suvenirlar, IT loyihalar va Telegram Mini App.
+
+Sayt: https://www.dasturxona.uz · Admin: https://www.dasturxona.uz/admin
+
+## Mahalliy ishga tushirish
+
+Node.js 22 yoki yangiroq versiya bilan:
+
+```sh
+npm ci
+npm start
+```
+
+Sayt `http://localhost:3000`, boshqaruv paneli `/admin` manzilida ochiladi.
+Admin ma’lumotlarini `.env.example` asosida muhit o‘zgaruvchilari sifatida belgilang. Server `.env` faylini avtomatik yuklamaydi: shell yoki hosting variables sozlamalaridan foydalaning.
+
+## Kod tuzilishi
+
+- `public/index.html` — umumiy sahifa karkasi.
+- `public/assets/store.js` — sahifalar, qidiruv, savat va buyurtma oqimi.
+- `public/assets/site.css` — yagona dizayn va mobil qoidalar.
+- `public/admin.html`, `public/assets/admin.js`, `public/assets/admin.css` — boshqaruv paneli.
+- `public/assets/fonts/` — o‘z serverimizdan yuklanadigan Montserrat shriftlari.
+- `server.js` — katalog, yangilik, rasm, buyurtma va admin API.
+
+Eski `dasturxona.html`, `design-v2` va 3D sahna resurslari tarixiy prototiplardir; amaldagi sayt ularni yuklamaydi.
+
+## Tekshiruvlar
+
+```sh
+npm run check
+npm test
+```
+
+Testlar vaqtinchalik katalogda ishlaydi; haqiqiy ma’lumotlar bazasini o‘zgartirmaydi. API, savat, o‘lcham tanlash, buyurtma, galereya, yangiliklar va admin amallari tekshiriladi. DOM testlari piksel darajasidagi brauzer tekshiruvining o‘rnini bosmaydi.
 
 ## Railway
-GitHub repoga push qiling, Railway'da **Deploy from GitHub Repo** ni tanlang. Variables bo'limiga `ADMIN_USER` va `ADMIN_PASSWORD` kiriting. Start command `npm start`.
 
-## Doimiy saqlash (Railway Volume)
-Railway'da fayl tizimi har deploy'da tozalanadi, shuning uchun ma'lumot Volume'da saqlanadi:
-1. Railway'da servisni oching → **Settings → Volumes → Add Volume** (yoki `Ctrl+K` → *Volume*).
-2. **Mount path**: `/data`.
-3. Redeploy qiling. Server `RAILWAY_VOLUME_MOUNT_PATH` ni avtomatik taniydi (kerak bo'lsa `DATA_DIR=/data` Variables'ga yozing).
-4. Birinchi ishga tushishda `data/db.json` dagi boshlang'ich ma'lumot Volume'ga ko'chiriladi; keyingi deploy'larda o'zgarishlar saqlanib qoladi.
+GitHub `main` tarmog‘i production servisga ulangan. Ishga tushirish buyrug‘i `npm start`.
+`ADMIN_USER` va `ADMIN_PASSWORD` Railway variables orqali beriladi.
 
-## Muhim
-Baza — JSON fayl (kichik/o'rta loyiha uchun yetarli). Yuk oshsa PostgreSQL'ga o'tish tavsiya etiladi. Admin panel hozir JSON muharriri shaklida.
+Doimiy volume `/data` manziliga biriktiriladi. Server `DATA_DIR` yoki `RAILWAY_VOLUME_MOUNT_PATH` ni ishlatadi; bo‘lmasa mahalliy `data/` ishlatiladi. Boshlang‘ich `data/db.json` faqat baza hali mavjud bo‘lmaganda ko‘chiriladi. Mavjud buyurtmalar, kontent va `uploads/` rasmlari deployda qayta yozilmaydi.
+
+Sog‘liq tekshiruvi: `/api/health`.
+
+## Boshqaruv
+
+Mahsulotlar, o‘lchamlar, ranglar, galereya, bannerlar tartibi, yangiliklar va qoralamalar, IT loyihalar, jamoa profillari, aloqa sozlamalari hamda buyurtma holatlari admin panelda boshqariladi. Yangi buyurtma jamoa tomonidan tasdiqlanadi; mavjudlik, to‘lov va yetkazish shartlari xaridor bilan kelishiladi.
