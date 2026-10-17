@@ -9,7 +9,7 @@
     "dev": "node server.js",
     "build:visuals": "esbuild src/brand-scene.js --bundle --minify --format=iife --target=es2020 --loader:.svg=text --legal-comments=linked --outfile=public/assets/scene-v2.bundle.js",
     "test": "node --test tests/*.test.cjs",
-    "check": "node --check server.js && node --check public/assets/store.js && node --check public/assets/admin.js && node --check public/assets/motion-home.js"
+    "check": "node --check server.js && node --check bts.js && node --check public/assets/store.js && node --check public/assets/admin.js && node --check public/assets/motion-home.js"
   },
   "engines": {
     "node": ">=20"

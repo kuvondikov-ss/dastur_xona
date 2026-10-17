@@ -13,7 +13,7 @@ async function fixture(){
  const vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));
  const dom=new JSDOM(html,{url:'https://dasturxona.test/admin',runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:vc,beforeParse(w){
   w.confirm=()=>true;w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};w.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};
-  w.fetch=async(url,options={})=>{let result;if(url==='/api/admin/data')result=db;else if(url==='/api/admin/upload')result={url:'/uploads/new-image.webp'};else{const body=JSON.parse(options.body);writes.push({url,body});if(options.method==='PUT')db[url.split('/').at(-1)]=body;result={ok:true};}return {ok:true,status:200,json:async()=>result};};
+  w.fetch=async(url,options={})=>{let result;if(url==='/api/admin/data')result=db;else if(url==='/api/admin/upload')result={url:'/uploads/new-image.webp'};else if(url==='/api/admin/bts/settings'&&!options.method)result={enabled:false,baseUrl:'https://apitest.bts.uz:28345',login:'api-login',hasPassword:true,testMode:true,pickupType:'courier'};else if(url==='/api/admin/bts/test')result={ok:true,testMode:true,regions:14};else{const body=JSON.parse(options.body);writes.push({url,body});if(options.method==='PUT')db[url.split('/').at(-1)]=body;result={ok:true};}return {ok:true,status:200,json:async()=>result};};
  }});
  const d=dom.window.document,w=dom.window;d.querySelector('#username').value='review-user';d.querySelector('#password').value='review-password';d.querySelector('#loginForm button').click();await until(()=>!d.querySelector('#dashboard').hidden);
  return {d,w,dom,db,writes,errors};
@@ -30,4 +30,12 @@ test('news starts as a draft and team members can be maintained',async()=>{
 });
 test('order details show selected size and update only order status fields',async()=>{
  const f=await fixture();try{f.d.querySelector('[data-tab=orders]').click();assert.equal(f.d.querySelector('#addEntry').hidden,true);f.d.querySelector('[data-edit="0"]').click();assert.match(f.d.querySelector('.admin-order-items').textContent,/M × 1/);f.d.querySelector('[name=status]').value='confirmed';f.d.querySelector('[name=paymentStatus]').value='paid';f.d.querySelector('#saveEntry').click();await until(()=>f.writes.length===1);assert.equal(f.writes[0].url,'/api/admin/orders/DX-ADMIN-TEST');assert.deepEqual(f.writes[0].body,{status:'confirmed',paymentStatus:'paid'});assert.deepEqual(f.errors,[]);}finally{await new Promise(setImmediate);f.dom.window.close();}
+});
+test('BTS admin settings never prefill an existing password and save through a private endpoint',async()=>{
+ const f=await fixture();try{
+  f.d.querySelector('[data-tab=bts]').click();await until(()=>f.d.querySelector('#btsSettingsForm'));
+  assert.equal(f.d.querySelector('#addEntry').hidden,true);assert.equal(f.d.querySelector('[name=password]').value,'');assert.match(f.d.querySelector('[name=password]').placeholder,/saqlangan/);
+  f.d.querySelector('#btsSettingsForm button[value=test]').click();await until(()=>f.d.querySelector('#btsConnectionResult').textContent.includes('muvaffaqiyatli'));
+  assert.equal(f.writes[0].url,'/api/admin/bts/settings');assert.equal(f.writes[0].body.password,'');assert.equal(f.writes[0].body.enabled,false);assert.deepEqual(f.errors,[]);
+ }finally{await new Promise(setImmediate);f.dom.window.close();}
 });

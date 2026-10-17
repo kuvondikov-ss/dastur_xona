@@ -16,3 +16,7 @@
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation:none!important;transition:none!important}}
 @media print{body{background:white}.site-header,.site-footer,.breadcrumb,.confirm-actions,.toast-region,dialog,.skip-link{display:none!important}.container{width:100%}.confirm-box{border:0;padding:0;max-width:none}.confirm-box h1{font-size:26px}.page-top{padding:0}.confirm-status,.note-box{border:1px solid #aaa}}
 .menu-foot{padding:0 24px 24px}.project-bottom{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:auto}.project-bottom .price{font-size:18px}
+
+/* BTS delivery selection follows the checkout field grid. */
+.bts-fields{display:grid;grid-template-columns:1fr 1fr;gap:20px}.bts-fields .field-full{grid-column:1/-1}.bts-quote{padding:16px;background:var(--soft);border:1px solid var(--line);border-radius:10px}.bts-quote p{font-size:13px;line-height:1.7}.bts-quote .text-link{font-size:12px;margin-top:10px}.bts-tracking{margin-top:22px}.bts-tracking p{font-size:14px;margin-top:8px}.bts-tracking .text-link{margin-top:12px}
+@media(max-width:600px){.bts-fields{grid-template-columns:1fr}.bts-fields .field-full{grid-column:auto}}

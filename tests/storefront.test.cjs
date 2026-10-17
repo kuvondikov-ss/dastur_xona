@@ -6,7 +6,7 @@ const {normalizeProduct,normalizeProject}=require('../server');
 const root=path.join(__dirname,'..');
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function until(check){for(let i=0;i<80;i++){if(check())return;await sleep(10);}assert(check(),'UI did not reach expected state');}
-async function fixture({banners=[],reduced=false}={}){
+async function fixture({banners=[],reduced=false,bts=false}={}){
  const db=JSON.parse(fs.readFileSync(path.join(root,'data/db.json'))),errors=[],requests=[];
  db.products.push({id:'uploaded-souvenir',name:'Yangi suvenir',short:'Sinov',category:'suvenir',physical:true,price:15000,stock:4,sizes:[],image:'/uploads/main.webp',images:['/uploads/detail.webp']});
  const news=[{slug:'new-article',title:'Yangi maqola',excerpt:'Jamoa haqida',body:'To‘liq maqola matni.',category:'jamoa',status:'published',publishedAt:'2026-10-15T10:00:00Z'}];
@@ -17,7 +17,11 @@ async function fixture({banners=[],reduced=false}={}){
   w.matchMedia=()=>({matches:reduced,addEventListener(){},removeEventListener(){}});w.HTMLElement.prototype.getBoundingClientRect=function(){return {top:0,bottom:this.classList.contains('motion-hero')?800:0,left:0,right:100,width:100,height:800};};
   w.scrollTo=()=>{};w.HTMLElement.prototype.scrollIntoView=()=>{};w.HTMLDialogElement.prototype.showModal=function(){this.setAttribute('open','');};w.HTMLDialogElement.prototype.close=function(){this.removeAttribute('open');};w.CSS={escape:value=>String(value).replace(/"/g,'\\"')};
   w.fetch=async(url,options={})=>{requests.push({url:String(url),options});let result;
-   if(String(url).startsWith('/api/catalog'))result={api:'dasturxona',products:db.products.map(normalizeProduct),projects:db.projects.map(normalizeProject),team:[],settings:db.settings,banners};
+   if(String(url).startsWith('/api/catalog'))result={api:'dasturxona',products:db.products.map(normalizeProduct),projects:db.projects.map(normalizeProject),team:[],settings:db.settings,banners,shipping:{bts:{enabled:bts}}};
+   else if(String(url).startsWith('/api/shipping/bts/regions'))result={items:[{code:'01',name:'Toshkent'}]};
+   else if(String(url).startsWith('/api/shipping/bts/cities'))result={items:[{code:'0101',name:'Sinov tumani'}]};
+   else if(String(url).startsWith('/api/shipping/bts/branches'))result={items:[{code:'0104',name:'BTS filiali',address:'Filial ko‘chasi 24'}]};
+   else if(String(url)==='/api/shipping/bts/quote')result={quoteId:'signed-test-quote',price:25000,expiresAt:new Date(Date.now()+900000).toISOString()};
    else if(String(url)==='/api/orders'){const p=JSON.parse(options.body);result={order:{...p,ref:'DX-UI-TEST',token:'test-token',serverSaved:true,status:'new',paymentStatus:'unpaid',shippingFee:0,total:p.items.reduce((sum,i)=>sum+db.products.find(p=>p.id===i.id).price*i.qty,0),items:p.items.map(i=>({...i,productName:db.products.find(p=>p.id===i.id).name,unitPrice:db.products.find(p=>p.id===i.id).price})),delivery:'Kelishilgan joydan olib ketish'}};}
    else if(String(url).startsWith('/api/news/'))result=news[0];
    else if(String(url).startsWith('/api/news')){const u=new URL(String(url),'https://dasturxona.test');const filtered=news.filter(n=>(!u.searchParams.get('q')||n.title.toLowerCase().includes(u.searchParams.get('q').toLowerCase()))&&(!u.searchParams.get('category')||n.category===u.searchParams.get('category')));result={items:filtered,total:filtered.length,page:1,limit:9};}
@@ -87,4 +91,29 @@ test('checkout submits once and shows confirmation with server-calculated total'
 });
 test('projects are not duplicated and all informational routes render without script errors',async()=>{
  const f=await fixture();try{await f.go('#/it-proyektlar');assert.equal(f.d.querySelectorAll('.project-card').length,1);assert.equal(f.d.querySelectorAll('.dx-bot-card').length,0);for(const hash of ['#/loyiha/dasturxona-bot','#/biz-haqimizda','#/malumot/yetkazish','#/malumot/tolov','#/malumot/qaytarish','#/malumot/maxfiylik','#/malumot/loyiha','#/missing']){await f.go(hash);assert(f.d.querySelector('#main h1'));}assert.deepEqual(f.errors,[]);}finally{f.dom.window.close();}
+});
+test('BTS checkout quotes the selected city and sends its quote without a client shipping price',async()=>{
+ const f=await fixture({bts:true});try{
+  await f.go('#/mahsulot/uploaded-souvenir');f.d.querySelector('[name=buy-now]').click();await until(()=>f.d.querySelector('#bts-region:not([disabled])'));
+  assert.equal(f.d.querySelector('#delivery').value,'bts_courier');
+  f.d.querySelector('#bts-region').value='01';f.d.querySelector('#bts-region').dispatchEvent(new f.w.Event('change',{bubbles:true}));await until(()=>!f.d.querySelector('#bts-city').disabled);
+  f.d.querySelector('#bts-city').value='0101';f.d.querySelector('#bts-city').dispatchEvent(new f.w.Event('change',{bubbles:true}));await until(()=>f.d.querySelector('#summary-delivery').textContent.includes('25'));
+  assert.match(f.d.querySelector('#summary-grand').textContent,/40/);
+  f.d.querySelector('#customer').value='Sinov xaridor';f.d.querySelector('#phone').value='+998901234567';f.d.querySelector('#address').value='Sinov ko‘chasi 24';f.d.querySelector('#consent').checked=true;
+  f.d.querySelector('#checkout-form button[type=submit]').click();await until(()=>f.d.querySelector('.confirm-box'));
+  const payload=JSON.parse(f.requests.find(r=>r.url==='/api/orders').options.body);assert.equal(payload.shipping.quoteId,'signed-test-quote');assert.equal(payload.delivery,'bts_courier');assert.equal(payload.shippingFee,undefined);
+  assert.deepEqual(f.errors,[]);
+ }finally{f.dom.window.close();}
+});
+test('BTS branch checkout requires a branch and pickup clears the quote and address requirement',async()=>{
+ const f=await fixture({bts:true});try{
+  await f.go('#/mahsulot/uploaded-souvenir');f.d.querySelector('[name=buy-now]').click();await until(()=>f.d.querySelector('#bts-region:not([disabled])'));
+  const change=(id,value)=>{f.d.getElementById(id).value=value;f.d.getElementById(id).dispatchEvent(new f.w.Event('change',{bubbles:true}));};
+  change('delivery','bts_branch');assert.equal(f.d.querySelector('#address').required,false);assert.equal(f.d.querySelector('#bts-branch-field').hidden,false);
+  change('bts-region','01');await until(()=>!f.d.querySelector('#bts-city').disabled);change('bts-city','0101');await until(()=>!f.d.querySelector('#bts-branch').disabled);
+  assert.equal(f.requests.filter(r=>r.url==='/api/shipping/bts/quote').length,0);change('bts-branch','0104');await until(()=>f.d.querySelector('#summary-delivery').textContent.includes('25'));
+  assert.match(f.d.querySelector('#bts-branch-address').textContent,/Filial ko‘chasi 24/);
+  change('delivery','pickup');assert.equal(f.d.querySelector('#bts-fields').hidden,true);assert.equal(f.d.querySelector('#address').required,false);assert.match(f.d.querySelector('#summary-delivery').textContent,/^0/);
+  assert.deepEqual(f.errors,[]);
+ }finally{f.dom.window.close();}
 });
