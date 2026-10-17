@@ -7,7 +7,6 @@
 body.motion-home .site-header{position:fixed;width:100%;transform:translateY(-110%);visibility:hidden;pointer-events:none;transition:transform .35s,visibility .35s}
 body.motion-header-visible .site-header{transform:translateY(0);visibility:visible;pointer-events:auto}
 .motion-homepage{padding:0;overflow:clip;--ink:#112e4c;--ivory:#f3ebdc}
-.motion-symbols{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
 .motion-homepage .motion-kicker{display:block;font-size:12px;line-height:1.6;font-weight:600;letter-spacing:.13em;text-transform:uppercase}
 .motion-homepage .home-hero{display:block;position:relative;min-height:620px;height:100svh;width:100%;margin:0;border-radius:0;isolation:isolate;background:#091e34;color:var(--ivory)}
 .motion-hero-brand{position:absolute;z-index:5;top:34px;left:max(40px,calc((100vw - 1360px)/2));right:max(40px,calc((100vw - 1360px)/2));display:flex;align-items:center;justify-content:space-between;gap:30px}
@@ -72,10 +71,10 @@ body.motion-header-visible .site-header{transform:translateY(0);visibility:visib
 .motion-object{position:relative;display:grid;place-items:center;min-width:0;height:100%;perspective:1100px}
 .motion-object::after{content:"";position:absolute;bottom:1%;left:24%;width:53%;height:10%;border-radius:50%;background:#132e4c1c;filter:blur(19px);z-index:-1;transform:rotate(-8deg)}
 .merch-model{display:block;width:100%;height:100%;max-height:560px;overflow:visible}
+.motion-product-photo{object-fit:contain;object-position:center;border-radius:4px}
 .motion-object>.merch-model{filter:drop-shadow(17px 21px 12px #06182f2b);transform:translateY(var(--object-rise,0px)) rotateY(var(--object-turn,-8deg)) rotateZ(-5deg);transition:filter .5s;will-change:transform}
 .motion-object-mug>.merch-model{transform:translateY(var(--object-rise,0px)) rotateY(var(--object-turn,-8deg)) rotateZ(8deg)}
 .motion-object-tote>.merch-model{transform:translateY(var(--object-rise,0px)) rotateY(var(--object-turn,-8deg)) rotateZ(-8deg)}
-.garment-mark{filter:brightness(0) invert(1);opacity:.85}
 .motion-object-caption{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:9px;letter-spacing:.22em;opacity:.6}
 .motion-merch-bottom{display:flex;align-items:end;justify-content:space-between;gap:25px;position:relative;z-index:4;padding-block:28px}
 .motion-ready:not(.motion-reduced) .motion-merch-bottom{position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
