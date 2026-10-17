@@ -18,9 +18,15 @@
       {id:'tote',label:'Aksessuar',title:'G‘oyalarni\nolib yuring.',text:'Darsdan ishga. Uchrashuvdan yangi loyihaga. Siz bilan birga yuradigan milliy ruh.',product:findProduct(/tote|sumka/i,'merch'),note:'03 — Harakatdagi g‘oyalar.'}
     ];
     const productUrl=p=>p?'#/mahsulot/'+encodeURIComponent(p.id):'#/dokon';
+    const productCutouts={
+      hoodie:{source:'https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/ff4de1c9-ed05-462d-85b6-2370732e8641.jpg',png:'/assets/motion/hoodie.png'},
+      mug:{source:'https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/07f9e850-6dba-4d47-bf7a-ef1a020ec2b8.jpg',png:'/assets/motion/mug.png'},
+      tote:{source:'https://d2ol7oe51mr4n9.cloudfront.net/user_3KBWkKohsTbseSsLFaWt6Iazmtz/faf685a0-7e0a-4b68-bb7b-d9b1cc7927fc.jpg',png:'/assets/motion/tote.png'}
+    };
     const modelPhoto=id=>{
       const product=models.find(model=>model.id===id)?.product;
-      const source=imageSrc(product?.image||'/assets/products/'+id+'.webp');
+      const original=imageSrc(product?.image||'/assets/products/'+id+'.webp');
+      const source=original===productCutouts[id]?.source?productCutouts[id].png:original;
       return `<img class="merch-model motion-product-photo" src="${esc(source)}" alt="${esc(product?.name||'Dasturxona mahsuloti')}" width="1254" height="1254" loading="lazy" decoding="async">`;
     };
     return `<div class="home-page motion-homepage">
