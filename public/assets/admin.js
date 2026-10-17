@@ -4,7 +4,7 @@
   const $=id=>document.getElementById(id);
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const labels={products:'Mahsulotlar',banners:'Bannerlar',news:'Yangiliklar',projects:'IT loyihalar',team:'Jamoa',orders:'Buyurtmalar',settings:'Sozlamalar'};
-  const hints={products:'Katalogdagi mahsulotlar, narxlar va mavjudlik.',banners:'Bosh sahifadagi e’lonlar. Tartibni ↑ va ↓ orqali o‘zgartiring.',news:'Maqolalar, e’lonlar va jamoa yangiliklari.',projects:'Jamoamizning raqamli mahsulot va xizmatlari.',team:'Jamoa a’zolari, ko‘nikmalari va hissasi.',orders:'Buyurtma tafsilotlarini oching va holatini yangilang.',settings:'Saytning aloqa va yetkazish ma’lumotlari.'};
+  const hints={products:'Katalogdagi mahsulotlar, narxlar va mavjudlik.',banners:'To‘liq ekranli bosh slayder: 15 tagacha banner. Tartibni ↑ va ↓ orqali o‘zgartiring.',news:'Maqolalar, e’lonlar va jamoa yangiliklari.',projects:'Jamoamizning raqamli mahsulot va xizmatlari.',team:'Jamoa a’zolari, ko‘nikmalari va hissasi.',orders:'Buyurtma tafsilotlarini oching va holatini yangilang.',settings:'Saytning aloqa va yetkazish ma’lumotlari.'};
   const statuses={new:'Yangi',confirmed:'Tasdiqlangan',processing:'Tayyorlanmoqda',shipped:'Jo‘natilgan',completed:'Yakunlangan',cancelled:'Bekor qilingan'};
   const payments={unpaid:'To‘lov kutilmoqda',paid:'To‘langan',refunded:'Qaytarilgan'};
   const money=n=>Number(n||0).toLocaleString('uz-UZ')+' so‘m';
@@ -38,6 +38,7 @@
     const query=$('listSearch').value.trim().toLowerCase(),all=db[tab]||[];
     const filtered=all.map((item,index)=>({item,index})).filter(({item})=>([item.name,item.title,item.ref,item.customer,item.phone].join(' ')).toLowerCase().includes(query));
     $('listCount').textContent=filtered.length+' ta yozuv';
+    $('addEntry').disabled=tab==='banners'&&all.length>=15;
     $('items').innerHTML=filtered.map(({item:x,index:i})=>{
       const img=x.image||x.cover||x.photo;
       const meta=tab==='products'?money(x.price)+' · '+(x.stock==null?'Soni ko‘rsatilmagan':x.stock+' dona')+' · '+(x.categoryName||({merch:'Merch',souvenir:'Suvenir',suvenir:'Suvenir',digital:'Raqamli'})[x.category]||''):
@@ -47,6 +48,7 @@
     }).join('')||`<div class="admin-empty"><h2>${query?'Yozuv topilmadi.':'Hozircha yozuv yo‘q.'}</h2><p>${query?'Boshqa so‘z bilan qidirib ko‘ring.':tab==='orders'?'Yangi buyurtmalar shu yerda ko‘rinadi.':'“Yangi qo‘shish” orqali birinchi yozuvni kiriting.'}</p></div>`;
   }
   function openEditor(index){
+    if(tab==='banners'&&index<0&&db.banners.length>=15){notice('Slayderga eng ko‘p 15 ta banner qo‘shish mumkin.');return;}
     editing=index;const v=index>=0?db[tab][index]:{};$('editorTitle').textContent=tab==='orders'?'Buyurtma '+v.ref:(index>=0?'Tahrirlash: ':'Yangi yozuv: ')+labels[tab];$('formError').hidden=true;
     let html='';
     if(tab==='products')html=input('name','Mahsulot nomi','text',v.name||'','required maxlength="160"')+input('price','Narxi (so‘m)','number',v.price??'','required min="0" step="1"')+input('stock','Mavjud soni','number',v.stock??'','min="0" step="1" placeholder="Cheklanmagan"')+select('category','Kategoriya',{merch:'Merch',souvenir:'Suvenirlar',digital:'Raqamli mahsulotlar'},v.category==='suvenir'?'souvenir':v.category||'merch')+input('short','Qisqa tavsif','text',v.short||'','maxlength="220"')+input('description','Batafsil tavsif','textarea',v.description||'')+`<fieldset class="field full"><legend>O‘lchamlar (faqat kiyimlar uchun)</legend><div class="size-choices">${['S','M','L','XL','XXL','XXXL'].map(size=>`<label class="size-choice"><input type="checkbox" name="sizeOption" value="${size}" ${(v.sizes||[]).includes(size)?'checked':''}>${size}</label>`).join('')}</div></fieldset>`+input('colors','Ranglar (vergul bilan)','text',(v.colors||[]).join(', '))+input('sizeGuide','O‘lcham bo‘yicha ma’lumot','textarea',v.sizeGuide||'')+input('spec','Material va xususiyatlar (har satrda bittadan)','textarea',(v.spec||[]).join('\n'))+input('image','Asosiy rasm manzili','text',v.image||'')+upload('image','Asosiy rasm yuklash',v.image)+input('images','Qo‘shimcha rasm manzillari (har satrda bittadan)','textarea',(v.images||[]).join('\n'))+upload('images','Galereyaga rasmlar yuklash',(v.images||[])[0]);

@@ -88,6 +88,7 @@ function createApp(options = {}) {
       value=value.map(normalizeProduct);
     }
     if(section==='news'&&value.some(n=>!n.slug||!String(n.title||'').trim()||!String(n.body||'').trim()||!['jamoa','mahsulot','loyiha','tadbir'].includes(n.category)))return res.status(400).json({error:'Yangilik sarlavhasi, matni va kategoriyasini tekshiring.'});
+    if(section==='banners'&&(value.length>15||value.some(b=>!b||typeof b!=='object'||!String(b.title||'').trim())))return res.status(400).json({error:'Slayderga sarlavhali 15 tagacha banner qo‘shish mumkin.'});
     if(section==='projects')value=value.map(normalizeProject);
     db[section]=value;write(db);res.json({ok:true});
   });

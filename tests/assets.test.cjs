@@ -9,7 +9,7 @@ test('deployed HTML and CSS reference existing local scripts, images and fonts',
   for(const match of html.matchAll(/(?:src|href)="(\/assets\/[^"?#]+)"/g))assets.add(match[1]);
   assert(!html.includes('/assets/design-v2'));assert(!html.includes('/assets/scene-v2.bundle'));
  }
- for(const name of ['site.css','admin.css','fonts.css']){
+ for(const name of ['site.css','admin.css','fonts.css','motion-home.css']){
   const css=fs.readFileSync(path.join(publicDir,'assets',name),'utf8');
   for(const match of css.matchAll(/url\(["']?(\/assets\/[^)"']+)/g))assets.add(match[1]);
  }

@@ -49,3 +49,12 @@ test('admin validates prices and normalizes product category on save',async()=>{
  const put=list=>call('/api/admin/products',{method:'PUT',headers:{Authorization:authorization,'Content-Type':'application/json'},body:JSON.stringify(list)});
  assert.equal((await put(products)).response.status,400);products[0].price=179000;assert.equal((await put(products)).response.status,200);const product=JSON.parse(fs.readFileSync(path.join(directory,'db.json'))).products.find(p=>p.id==='souvenir-empty-size');assert.equal(product.category,'souvenir');assert.equal(product.sizes,undefined);
 });
+test('slider accepts fifteen ordered banners and rejects an oversized or untitled update',async()=>{
+ const banners=Array.from({length:15},(_,i)=>({id:'banner-'+i,title:'E’lon '+i,image:'/uploads/banner.webp',link:'#/dokon'}));
+ const put=value=>call('/api/admin/banners',{method:'PUT',headers:{Authorization:authorization,'Content-Type':'application/json'},body:JSON.stringify(value)});
+ assert.equal((await put(banners)).response.status,200);
+ assert.equal((await put([...banners,{id:'extra',title:'Ortiqcha'}])).response.status,400);
+ assert.equal((await put([{title:'  '}])).response.status,400);
+ const {data}=await call('/api/catalog');assert.deepEqual(data.banners,banners);
+ assert(JSON.parse(fs.readFileSync(path.join(directory,'db.json'))).orders.some(o=>o.ref==='PRESERVED'));
+});

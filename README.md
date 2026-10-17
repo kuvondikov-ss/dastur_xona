@@ -20,7 +20,8 @@ Admin ma’lumotlarini `.env.example` asosida muhit o‘zgaruvchilari sifatida b
 
 - `public/index.html` — umumiy sahifa karkasi.
 - `public/assets/store.js` — sahifalar, qidiruv, savat va buyurtma oqimi.
-- `public/assets/site.css` — yagona dizayn va mobil qoidalar.
+- `public/assets/site.css` — umumiy sahifalar va do‘kon dizayni.
+- `public/assets/motion-home.js`, `motion-home.css` — to‘liq ekranli slayder, scroll bilan boshqariladigan merch va IT sahnalari; marshrut almashganda tozalanadigan animatsiya.
 - `public/admin.html`, `public/assets/admin.js`, `public/assets/admin.css` — boshqaruv paneli.
 - `public/assets/fonts/` — o‘z serverimizdan yuklanadigan Montserrat shriftlari.
 - `server.js` — katalog, yangilik, rasm, buyurtma va admin API.
@@ -44,6 +45,14 @@ GitHub `main` tarmog‘i production servisga ulangan. Ishga tushirish buyrug‘i
 Doimiy volume `/data` manziliga biriktiriladi. Server `DATA_DIR` yoki `RAILWAY_VOLUME_MOUNT_PATH` ni ishlatadi; bo‘lmasa mahalliy `data/` ishlatiladi. Boshlang‘ich `data/db.json` faqat baza hali mavjud bo‘lmaganda ko‘chiriladi. Mavjud buyurtmalar, kontent va `uploads/` rasmlari deployda qayta yozilmaydi.
 
 Sog‘liq tekshiruvi: `/api/health`.
+
+## Motion bosh sahifa
+
+Birinchi ekran — 15 tagacha slaydli karusel. Admin paneldagi **Bannerlar** tartibi va havolalari ishlatiladi. Banner bo‘lmasa, e’lon qilingan yangiliklar va brend slaydlari ko‘rsatiladi. Slaydlar yetti soniyada almashadi; hover, klaviatura fokusi, yashirin tab va ekrandan chiqishda avtomatik almashish to‘xtaydi. Telefon orqali yon tomonga surish va qo‘lda boshqarish ham ishlaydi.
+
+Menyu slayderdan to‘liq o‘tilgach chiqadi; boshqa sahifalarda doim mavjud. Merch sahnasida hudi, krujka va sumka milliy naqsh orqali ulanadi. Illustratsiyalar SVG va CSS perspektivasi yordamida chizilgan; ushbu namoyishlar mahsulotning aniq fotografiyasi o‘rnini bosmaydi. Xarid kartochkalari va batafsil sahifalar katalog rasmlarini ishlatadi.
+
+Pastki o‘ngdagi tugma harakatni to‘xtatadi va tanlovni shu brauzerda saqlaydi. Qurilmada `prefers-reduced-motion` yoqilganida sahnalar oddiy ketma-ket bo‘limlar ko‘rinishida ochiladi; avtomatik slaydlar ishlamaydi. Scroll tabiiy qoladi, sahifadan chiqishda vaqtlagichlar va hodisa tinglovchilari tozalanadi.
 
 ## Boshqaruv
 
