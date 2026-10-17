@@ -50,7 +50,9 @@ Sog‘liq tekshiruvi: `/api/health`.
 
 Birinchi ekran — 15 tagacha slaydli karusel. Admin paneldagi **Bannerlar** tartibi va havolalari ishlatiladi. Banner bo‘lmasa, e’lon qilingan yangiliklar va brend slaydlari ko‘rsatiladi. Slaydlar yetti soniyada almashadi; hover, klaviatura fokusi, yashirin tab va ekrandan chiqishda avtomatik almashish to‘xtaydi. Telefon orqali yon tomonga surish va qo‘lda boshqarish ham ishlaydi.
 
-Menyu slayderdan to‘liq o‘tilgach chiqadi; boshqa sahifalarda doim mavjud. Merch sahnasida hudi, krujka va sumka milliy naqsh orqali ulanadi. Motion sahnalar va brauzer maketidagi hudi, krujka va sumka uchun katalog fotosuratlaridan tayyorlangan shaffof PNG rasmlar (`public/assets/motion/`) ishlatiladi. PNG har birining asl katalog rasmi bilan bog‘langan: admin boshqa rasm qo‘ysa, eski PNG o‘rniga yangi katalog rasmi ko‘rsatiladi. CSS perspektivasi va scroll harakati saqlanadi.
+Menyu slayderdan to‘liq o‘tilgach chiqadi; boshqa sahifalarda doim mavjud. Merch sahnasida hudi, krujka va sumka milliy naqsh orqali ulanadi. Motion sahnalardagi hudi, krujka va sumka uchun katalog fotosuratlaridan tayyorlangan shaffof PNG rasmlar (`public/assets/motion/`) ishlatiladi. PNG har birining asl katalog rasmi bilan bog‘langan: admin boshqa rasm qo‘ysa, eski PNG o‘rniga yangi katalog rasmi ko‘rsatiladi. CSS perspektivasi va scroll harakati saqlanadi.
+
+IT bo‘limidagi telefon maketi foydalanuvchi taqdim etgan real Mini App ekranini (`mini-app-screen.png`), brauzer maketi esa amaldagi bosh sahifa tasvirini (`website-screen.jpg`) ko‘rsatadi. Ikkala tasvir ham `public/assets/motion/` ichida saqlanadi; ekranlar dizayni o‘zgarsa, shu fayllar yangilanadi. Maketlar scroll bilan almashadi va kichik ekranlarda ham tasvir nisbatlarini saqlaydi.
 
 Pastki o‘ngdagi tugma harakatni to‘xtatadi va tanlovni shu brauzerda saqlaydi. Qurilmada `prefers-reduced-motion` yoqilganida sahnalar oddiy ketma-ket bo‘limlar ko‘rinishida ochiladi; avtomatik slaydlar ishlamaydi. Scroll tabiiy qoladi, sahifadan chiqishda vaqtlagichlar va hodisa tinglovchilari tozalanadi.
 
